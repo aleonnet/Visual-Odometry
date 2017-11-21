@@ -344,12 +344,19 @@ def fixP(p, p_prev, spd):
     return p
 
 
+def DetectStop(xc, yc, xn, yn, spd):
+    """detects if the movement is not enough for estimation"""
+    if abs(spd)>0.2:
+        return False
+    d = np.sqrt((xc-xn)**2 + (yc-yn)**2)
+    return np.percentile(d, 25)<0.25
+
 ###########################################################################
 # main
 ###########################################################################
 # number of cycles and sequence number
 for cyc in [3]:
-    for seq in [3]:#range(21,-1,-1):
+    for seq in range(10,-1,-1):
 
         # initializations
         i=0
@@ -360,8 +367,8 @@ for cyc in [3]:
         pl = ktt.GetPlst()
 
         facl, mr_sum, feat_sum = np.zeros(len(ktt.poses)), 0, 0
-        START = 0
-        #NFRAMES = 200#
+        START = 000
+        #NFRAMES = 1000#
         NFRAMES = len(ktt.poses)-1
         bl, scd = np.array([]), 175
         spd, nP_nc, = GetInitSpd(START, 0, scd)
@@ -371,14 +378,19 @@ for cyc in [3]:
         xp, yp, i_p = np.array([], dtype=np.float32), np.array([], dtype=np.float32), np.array([], dtype=np.float32)
         imc, imn = ktt.GetImg(START), ktt.GetImg(START+1)
         t_init, tc = time.time(), time.time()
-        for i in range(1, NFRAMES):
+        i = 0
+        for j in range(1, NFRAMES):
             
+            i = i+1
             # images (previous[n-1], current[n] and next [n+1]); P_nc is the camera  pose 
             # from current->next positions. (xc, yc) are feature coordinates for current image
             imp, imc, imn = imc, imn, ktt.GetImg(START+i+1)
             nP_nc[5]=spd
             pp, pc, pn = GetPtsTwoDepths(imp, imc, imn, t3d.GetTfromPar(nP_nc), scd)
             (xp, yp), (xc, yc), (xn, yn), idc, i_p = pp.T, pc.T, pn.T, np.arange(len(pp), dtype=np.int), np.arange(len(pp), dtype=np.int)
+            #if DetectStop(xc, yc, xn, yn, spd):
+            
+            #    assert 0
 
             # after feature tracking perform pose estimation
             if len(xp > 10):
@@ -417,8 +429,8 @@ for cyc in [3]:
 
             tc = time.time()
             
-            if i%200==20:
-                print "f:%04d, inst:%4.1f, ty:%5.2f, av_rep:%5.3f, av_t:%5.3f, RT:%d" % (i+START, inst, ep[i, 5], mr_sum/i, avg_time, RANSAC_TRY)# feat_sum/i)
+            if i%500==0:
+                print "f:%04d, inst:%4.1f, av_rep:%5.3f, av_t:%5.3f" % (i+START, inst, mr_sum/i, avg_time)
 
             #if abs(nP_nc[5]) < 0.1:
             #    imc, imn = imp, imc
@@ -427,7 +439,7 @@ for cyc in [3]:
             xc, yc = xn, yn
     
         if 1:
-            np.savetxt("C:/tmp/multiView/frw_pl/p_tr%02d_cyc%02d_wnd%02d_f8.txt" % (ktt.trackNumber, cyc, 3), ep)
+            np.savetxt("C:/tmp/git_res/traj/tr_%02d_cyc_%02d.txt" % (ktt.trackNumber, cyc), ep)
         
         tot = time.time() - t_init
         print seq, tot, (tot)/NFRAMES, mr_sum
@@ -468,3 +480,4 @@ if 1:
     ax0.plot(spdl + varl, 'c')
     ax0.plot(spdl - varl, 'c')
 
+    plt.savefig("C:/tmp/git_res/figs/tr_%02d_cyc_%02d.png" % (ktt.trackNumber, cyc))
