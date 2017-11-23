@@ -356,7 +356,7 @@ def DetectStop(xc, yc, xn, yn, spd):
 ###########################################################################
 # number of cycles and sequence number
 for cyc in [3]:
-    for seq in range(10,-1,-1):
+    for seq in range(1,-1,-1):
 
         # initializations
         i=0
@@ -429,7 +429,7 @@ for cyc in [3]:
 
             tc = time.time()
             
-            if i%500==0:
+            if i%10==0:
                 print "f:%04d, inst:%4.1f, av_rep:%5.3f, av_t:%5.3f" % (i+START, inst, mr_sum/i, avg_time)
 
             #if abs(nP_nc[5]) < 0.1:
@@ -444,40 +444,40 @@ for cyc in [3]:
         tot = time.time() - t_init
         print seq, tot, (tot)/NFRAMES, mr_sum
 
-#plot images:
-if 1:
-    pl = ktt.GetPlst()
-    wpl, wep = ktt.PosesToWorld(pl), ktt.PosesToWorld(ep)
-
-    a=0
-    nfig = 7
-    fig = plt.figure(nfig); plt.clf()
-    
-    # plot y angle (car orientation)
-    ax0 = fig.add_subplot(221)
-    ax0.plot(ep[:, 1], 'k')
-    ax0.plot(pl[:, 1], 'g')
-    m = min(len(wep), len(wpl))
-    ax0.plot(np.unwrap(wep[:m,1] - wpl[:m,1]), 'c')
-    
-    # plot speed
-    ax1 = fig.add_subplot(222)
-    ax1.plot(ep[:, 5], 'k')
-    ax1.plot(pl[:, 5], 'g')
-    
-    # plot trajectory
-    ax3 = fig.add_subplot(223)
-    ax3.plot(wpl[:, 3], wpl[:, 5], 'g', linewidth=2.5)
-    ax3.plot(wep[:, 3], wep[:, 5], 'k', linewidth=2.5)
-    ax3.axis('equal')
-    ax3.grid('on')
-
-    # plot speed (inst and interval)
-    ax0 = fig.add_subplot(224)
-    ax0.plot(instl, 'mo')
-    ax0.plot(ep[:, 5], 'k')
-    ax0.plot(pl[:, 5], 'g')
-    ax0.plot(spdl + varl, 'c')
-    ax0.plot(spdl - varl, 'c')
-
-    plt.savefig("C:/tmp/git_res/figs/tr_%02d_cyc_%02d.png" % (ktt.trackNumber, cyc))
+        #plot images:
+        if 1:
+            pl = ktt.GetPlst()
+            wpl, wep = ktt.PosesToWorld(pl), ktt.PosesToWorld(ep)
+        
+            a=0
+            nfig = 7
+            fig = plt.figure(nfig); plt.clf()
+            
+            # plot y angle (car orientation)
+            ax0 = fig.add_subplot(221)
+            ax0.plot(ep[:, 1], 'k')
+            ax0.plot(pl[:, 1], 'g')
+            m = min(len(wep), len(wpl))
+            ax0.plot(np.unwrap(wep[:m,1] - wpl[:m,1]), 'c')
+            
+            # plot speed
+            ax1 = fig.add_subplot(222)
+            ax1.plot(ep[:, 5], 'k')
+            ax1.plot(pl[:, 5], 'g')
+            
+            # plot trajectory
+            ax3 = fig.add_subplot(223)
+            ax3.plot(wpl[:, 3], wpl[:, 5], 'g', linewidth=2.5)
+            ax3.plot(wep[:, 3], wep[:, 5], 'k', linewidth=2.5)
+            ax3.axis('equal')
+            ax3.grid('on')
+        
+            # plot speed (inst and interval)
+            ax0 = fig.add_subplot(224)
+            ax0.plot(instl, 'mo')
+            ax0.plot(ep[:, 5], 'k')
+            ax0.plot(pl[:, 5], 'g')
+            ax0.plot(spdl + varl, 'c')
+            ax0.plot(spdl - varl, 'c')
+        
+            plt.savefig("C:/tmp/git_res/figs/tr_%02d_cyc_%02d.png" % (ktt.trackNumber, cyc))
